@@ -1,1 +1,11 @@
-//Конфигурация Node.js
+{
+  "name": "cosmic-horoscope",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server/app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "@salutejs/server": "^1.4.0"
+  }
+}
