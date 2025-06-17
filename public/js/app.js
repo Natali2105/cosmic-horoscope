@@ -22,6 +22,11 @@ function generateHoroscope(sign, period) {
   ];
   return predictions[Math.floor(Math.random() * predictions.length)];
 }
+//выбор знака зодиака
+function selectSign(signName) {
+  document.getElementById('userSign').textContent = signName;
+  document.getElementById('getHoroscopeBtn').disabled = false;
+}
 
 // Инициализация страницы
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,4 +52,23 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
   });
+
+  document.getElementById('voiceBtn').addEventListener('click', async () => {
+  try {
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'ru-RU';
+    recognition.onresult = (event) => {
+      const command = event.results[0][0].transcript.toLowerCase();
+      if (command.includes('гороскоп')) {
+        // Анализ команды и поиск знака зодиака
+        const sign = zodiacSigns.find(s => command.includes(s.name.toLowerCase()));
+        if (sign) selectSign(sign.name);
+      }
+    };
+    recognition.start();
+  } catch (e) {
+    alert('Голосовой ввод не поддерживается в вашем браузере');
+  }
+});
+  
 });
