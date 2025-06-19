@@ -1,29 +1,44 @@
 // Инициализация знаков зодиака
 const zodiacSigns = [
-  { name: "Овен", icon: "♈", dates: "21 марта - 19 апреля" },
-  { name: "Телец", icon: "♉", dates: "20 апреля - 20 мая" },
-  { name: "Близнецы", icon: "♊", dates: "21 мая - 20 июня" },
-  { name: "Рак", icon: "♋", dates: "21 июня - 22 июля" },
-  { name: "Лев", icon: "♌", dates: "23 июля - 22 августа" },
-  { name: "Дева", icon: "♍", dates: "23 августа - 22 сентября" },
-  { name: "Весы", icon: "♎", dates: "23 сентября - 22 октября" },
-  { name: "Скорпион", icon: "♏", dates: "23 октября - 21 ноября" },
-  { name: "Стрелец", icon: "♐", dates: "22 ноября - 21 декабря" },
-  { name: "Козерог", icon: "♑", dates: "22 декабря - 19 января" },
-  { name: "Водолей", icon: "♒", dates: "20 января - 18 февраля" },
-  { name: "Рыбы", icon: "♓", dates: "19 февраля - 20 марта" }
+  { name: "Овен", icon: "♈", value: "aries" },
+  { name: "Телец", icon: "♉", value: "taurus" },
+  { name: "Близнецы", icon: "♊", value: "gemini" },
+  { name: "Рак", icon: "♋", value: "cancer" },
+  { name: "Лев", icon: "♌", value: "leo" },
+  { name: "Дева", icon: "♍", value: "virgo" },
+  { name: "Весы", icon: "♎", value: "libra" },
+  { name: "Скорпион", icon: "♏", value: "scorpio" },
+  { name: "Стрелец", icon: "♐", value: "sagittarius" },
+  { name: "Козерог", icon: "♑", value: "capricorn" },
+  { name: "Водолей", icon: "♒", value: "aquarius" },
+  { name: "Рыбы", icon: "♓", value: "pisces" }
 ];
 
-// Генерация гороскопов (заглушка)
-function generateHoroscope(sign, period) {
-  const predictions = [
-    "Звезды советуют вам сегодня...",
-    "Меркурий в ретроградном движении..."
-  ];
-  return predictions[Math.floor(Math.random() * predictions.length)];
+// Функция для получения реального гороскопа
+async function getRealHoroscope(signValue, period = 'today') {
+  try {
+    const response = await fetch(`https://aztro.sameerkumar.website/?sign=${signValue}&day=${period}`, {
+      method: 'POST'
+    });
+    
+    if (!response.ok) throw new Error('API не отвечает');
+    return await response.json();
+  } catch (error) {
+    console.error('Ошибка API:', error);
+    return {
+      description: 'Не удалось загрузить гороскоп. Попробуйте позже.',
+      mood: 'Неизвестно',
+      lucky_number: '--',
+      lucky_time: '--'
+    };
+  }
 }
-//выбор знака зодиака
-function selectSign(signName) {
+
+// Выбор знака зодиака
+let currentSign = null;
+
+function selectSign(signName, signValue) {
+  currentSign = { name: signName, value: signValue };
   document.getElementById('userSign').textContent = signName;
   document.getElementById('getHoroscopeBtn').disabled = false;
 }
@@ -36,114 +51,71 @@ document.addEventListener('DOMContentLoaded', () => {
     const element = document.createElement('div');
     element.className = 'zodiac-sign';
     element.innerHTML = `<i>${sign.icon}</i><span>${sign.name}</span>`;
-    element.addEventListener('click', () => selectSign(sign.name));
+    element.addEventListener('click', () => selectSign(sign.name, sign.value));
     grid.appendChild(element);
   });
 
   // Обработчик кнопки "Показать гороскоп"
-  document.getElementById('getHoroscopeBtn').addEventListener('click', () => {
-    const selectedSign = document.getElementById('userSign').textContent;
-    if (selectedSign !== 'Не выбран') {
-      const period = document.querySelector('.tab-btn.active').dataset.period;
-      const horoscope = generateHoroscope(selectedSign, period);
-      document.getElementById('horoscopeContent').innerHTML = `
-        <h4>Гороскоп для ${selectedSign}</h4>
-        <p>${horoscope}</p>
-      `;
-    }
-  });
-
-  document.getElementById('voiceBtn').addEventListener('click', async () => {
-  try {
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = 'ru-RU';
-    recognition.onresult = (event) => {
-      const command = event.results[0][0].transcript.toLowerCase();
-      if (command.includes('гороскоп')) {
-        // Анализ команды и поиск знака зодиака
-        const sign = zodiacSigns.find(s => command.includes(s.name.toLowerCase()));
-        if (sign) selectSign(sign.name);
-      }
-    };
-    recognition.start();
-  } catch (e) {
-    alert('Голосовой ввод не поддерживается в вашем браузере');
-  }
-});
-  
-});
-
-
-
-// Добавьте эту функцию для получения реального гороскопа
-async function getRealHoroscope(sign, period = 'today') {
-  try {
-    const response = await fetch(`https://aztro.sameerkumar.website/?sign=${sign.toLowerCase()}&day=${period}`, {
-      method: 'POST'
-    });
+  document.getElementById('getHoroscopeBtn').addEventListener('click', async () => {
+    if (!currentSign) return;
     
-    if (!response.ok) {
-      throw new Error('Ошибка получения гороскопа');
-    }
-    
-    const data = await response.json();
-    return {
-      prediction: data.description,
-      mood: data.mood,
-      luckyNumber: data.lucky_number,
-      luckyTime: data.lucky_time
+    const periodMap = {
+      daily: 'today',
+      weekly: 'week',
+      monthly: 'month'
     };
-  } catch (error) {
-    console.error('Ошибка:', error);
-    return {
-      prediction: 'Не удалось получить гороскоп. Попробуйте позже.',
-      mood: '',
-      luckyNumber: '',
-      luckyTime: ''
-    };
-  }
-}
-
-// Обновите обработчик кнопки
-document.getElementById('getHoroscopeBtn').addEventListener('click', async () => {
-  const selectedSign = document.getElementById('userSign').textContent;
-  if (selectedSign !== 'Не выбран') {
-    const period = document.querySelector('.tab-btn.active').dataset.period;
+    const period = periodMap[document.querySelector('.tab-btn.active').dataset.period];
     
     // Показать загрузку
-    document.getElementById('horoscopeContent').innerHTML = '<p>Загрузка гороскопа...</p>';
-    
-    // Получить реальный гороскоп
-    const horoscope = await getRealHoroscope(selectedSign, period);
-    
-    // Отобразить результат
-    document.getElementById('horoscopeContent').innerHTML = `
-      <h4>Гороскоп для ${selectedSign}</h4>
-      <p>${horoscope.prediction}</p>
-      <div class="horoscope-details">
-        <p><strong>Настроение:</strong> ${horoscope.mood}</p>
-        <p><strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
-        <p><strong>Благоприятное время:</strong> ${horoscope.luckyTime}</p>
+    const contentEl = document.getElementById('horoscopeContent');
+    contentEl.innerHTML = `
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Загружаем ваш гороскоп...</p>
       </div>
     `;
-  }
+    
+    // Получить реальный гороскоп
+    const horoscope = await getRealHoroscope(currentSign.value, period);
+    
+    // Отобразить результат
+    contentEl.innerHTML = `
+      <h4>${currentSign.name} • ${period === 'today' ? 'Сегодня' : period === 'week' ? 'На неделю' : 'На месяц'}</h4>
+      <div class="prediction">${horoscope.description}</div>
+      <div class="details">
+        <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
+        <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.lucky_number}</p>
+        <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.lucky_time}</p>
+      </div>
+    `;
+  });
+
+  // Переключение табов
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Голосовой ввод
+  document.getElementById('voiceBtn').addEventListener('click', async () => {
+    try {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'ru-RU';
+      
+      recognition.onresult = (event) => {
+        const command = event.results[0][0].transcript.toLowerCase();
+        const foundSign = zodiacSigns.find(s => 
+          command.includes(s.name.toLowerCase()) || 
+          command.includes(s.value.toLowerCase())
+        );
+        if (foundSign) selectSign(foundSign.name, foundSign.value);
+      };
+      
+      recognition.start();
+    } catch (e) {
+      alert('Голосовой ввод не поддерживается в вашем браузере');
+    }
+  });
 });
-
-
-// В app.js
-function getHoroscopeCacheKey(sign, period) {
-  return `horoscope_${sign}_${period}_${new Date().toISOString().split('T')[0]}`;
-}
-
-async function getCachedHoroscope(sign, period) {
-  const cacheKey = getHoroscopeCacheKey(sign, period);
-  const cached = localStorage.getItem(cacheKey);
-  
-  if (cached) {
-    return JSON.parse(cached);
-  }
-  
-  const freshHoroscope = await getRealHoroscope(sign, period);
-  localStorage.setItem(cacheKey, JSON.stringify(freshHoroscope));
-  return freshHoroscope;
-}
