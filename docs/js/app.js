@@ -128,3 +128,22 @@ document.getElementById('getHoroscopeBtn').addEventListener('click', async () =>
     `;
   }
 });
+
+
+// В app.js
+function getHoroscopeCacheKey(sign, period) {
+  return `horoscope_${sign}_${period}_${new Date().toISOString().split('T')[0]}`;
+}
+
+async function getCachedHoroscope(sign, period) {
+  const cacheKey = getHoroscopeCacheKey(sign, period);
+  const cached = localStorage.getItem(cacheKey);
+  
+  if (cached) {
+    return JSON.parse(cached);
+  }
+  
+  const freshHoroscope = await getRealHoroscope(sign, period);
+  localStorage.setItem(cacheKey, JSON.stringify(freshHoroscope));
+  return freshHoroscope;
+}
