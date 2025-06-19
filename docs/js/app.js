@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //Actro API не работает. АЛЬТЕРНАТИВА
 
-
 const zodiacData = {
   aries: {
     name: "Овен",
@@ -240,6 +239,8 @@ function getHoroscope(sign, period) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  let currentSign = null;
+
   const grid = document.getElementById('zodiacGrid');
   Object.keys(zodiacData).forEach(sign => {
     const data = zodiacData[sign];
@@ -250,11 +251,17 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('userSign').textContent = data.name;
       document.getElementById('getHoroscopeBtn').disabled = false;
       currentSign = sign;
+      
+      // Прокрутка к кнопке "Показать гороскоп" после выбора знака
+      document.getElementById('getHoroscopeBtn').scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
     });
     grid.appendChild(element);
   });
 
-    // Заполняем выпадающие списки для проверки совместимости
+  // Заполняем выпадающие списки для проверки совместимости
   const sign1Select = document.getElementById('sign1');
   const sign2Select = document.getElementById('sign2');
   const userSignSelect = document.getElementById('userSignSelect');
@@ -303,8 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   });
 
-  let currentSign = null;
-
   document.getElementById('getHoroscopeBtn').addEventListener('click', () => {
     if (!currentSign) return;
     
@@ -339,6 +344,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-
-
