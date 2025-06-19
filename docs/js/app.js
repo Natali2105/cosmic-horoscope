@@ -1,5 +1,5 @@
-// Инициализация знаков зодиака (с английскими значениями для API)
-/*const zodiacSigns = [
+/*вариант с api - не работает
+  const zodiacSigns = [
   { name: "Овен", icon: "♈", value: "aries" },
   { name: "Телец", icon: "♉", value: "taurus" },
   { name: "Близнецы", icon: "♊", value: "gemini" },
@@ -14,7 +14,7 @@
   { name: "Рыбы", icon: "♓", value: "pisces" }
 ];
 
-// Локальные гороскопы как резервный вариант
+//Запасной вариант на случай ошбок
 const localHoroscopes = {
   aries: {
     daily: "Сегодня звезды благоприятствуют новым начинаниям. Смело действуйте!",
@@ -26,7 +26,7 @@ const localHoroscopes = {
     weekly: "Неделя будет стабильной. Хорошее время для планирования.",
     monthly: "Месяц потребует терпения. Результаты придут позже, но будут значительными."
   },
-  // ... добавьте аналогично для всех знаков ...
+  //ост знаки
   pisces: {
     daily: "День хорош для творчества. Прислушайтесь к интуиции.",
     weekly: "Неделя эмоциональных переживаний. Найдите время для отдыха.",
@@ -34,10 +34,9 @@ const localHoroscopes = {
   }
 };
 
-// Функция для получения гороскопа
+//получение гороскопа
 async function getHoroscope(signValue, period = 'daily') {
   try {
-    // Пробуем получить реальный гороскоп
     const apiUrl = `https://aztro.sameerkumar.website/?sign=${signValue}&day=${period}`;
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -57,7 +56,7 @@ async function getHoroscope(signValue, period = 'daily') {
     };
   } catch (error) {
     console.log('Используем локальный гороскоп:', error);
-    // Возвращаем локальный гороскоп если API не работает
+    //Лок гороскоп если API не работает
     return {
       description: localHoroscopes[signValue]?.[period] || "Гороскоп временно недоступен",
       mood: ['Хорошее', 'Отличное', 'Нейтральное'][Math.floor(Math.random() * 3)],
@@ -67,7 +66,6 @@ async function getHoroscope(signValue, period = 'daily') {
   }
 }
 
-// Выбор знака зодиака
 let currentSign = null;
 
 function selectSign(signName, signValue) {
@@ -76,9 +74,7 @@ function selectSign(signName, signValue) {
   document.getElementById('getHoroscopeBtn').disabled = false;
 }
 
-// Инициализация страницы
 document.addEventListener('DOMContentLoaded', () => {
-  // Заполнение сетки знаков зодиака
   const grid = document.getElementById('zodiacGrid');
   zodiacSigns.forEach(sign => {
     const element = document.createElement('div');
@@ -88,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.appendChild(element);
   });
 
-  // Обработчик кнопки "Показать гороскоп"
+  //кнопка показать гороскоп
   document.getElementById('getHoroscopeBtn').addEventListener('click', async () => {
     if (!currentSign) return;
     
@@ -99,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const period = document.querySelector('.tab-btn.active').dataset.period;
     
-    // Показать загрузку
+    //загрузка
     const contentEl = document.getElementById('horoscopeContent');
     contentEl.innerHTML = `
       <div class="loading">
@@ -108,10 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
     
-    // Получить гороскоп
     const horoscope = await getHoroscope(currentSign.value, periodMap[period]);
     
-    // Отобразить результат
+    //показ рез-та
     contentEl.innerHTML = `
       <h4>${currentSign.name} • ${period === 'daily' ? 'Сегодня' : period === 'weekly' ? 'На неделю' : 'На месяц'}</h4>
       <div class="prediction">${horoscope.description}</div>
@@ -123,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   });
 
-  // Переключение табов
+  //переключение табов
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -160,7 +155,7 @@ const zodiacData = {
   }
 };
 
-// Генерация случайных мета-данных
+//случ данные
 function generateMeta() {
   const moods = ["Отличное", "Хорошее", "Нейтральное", "Волнующее"];
   const times = ["утро", "день", "вечер", "ночь"];
@@ -172,7 +167,6 @@ function generateMeta() {
   };
 }
 
-// Получение гороскопа
 function getHoroscope(sign, period) {
   const meta = generateMeta();
   return {
@@ -183,9 +177,7 @@ function getHoroscope(sign, period) {
   };
 }
 
-// Инициализация страницы
 document.addEventListener('DOMContentLoaded', () => {
-  // Заполнение сетки знаков
   const grid = document.getElementById('zodiacGrid');
   Object.keys(zodiacData).forEach(sign => {
     const data = zodiacData[sign];
@@ -202,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentSign = null;
 
-  // Обработчик кнопки гороскопа
   document.getElementById('getHoroscopeBtn').addEventListener('click', () => {
     if (!currentSign) return;
     
@@ -220,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   });
 
-  // Вспомогательная функция
   function getPeriodName(period) {
     return {
       daily: 'Сегодня',
@@ -229,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }[period];
   }
 
-  // Инициализация табов
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
