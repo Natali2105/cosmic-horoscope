@@ -202,7 +202,7 @@ const zodiacData = {
   }
 };
 
-// Генерация случайных мета-данных
+//случайные данные
 function generateMeta() {
   const moods = ["Отличное", "Хорошее", "Нейтральное", "Волнующее"];
   const times = ["утро", "день", "вечер", "ночь"];
@@ -214,7 +214,7 @@ function generateMeta() {
   };
 }
 
-// Получение гороскопа для знака и периода
+//получение
 function getHoroscope(sign, period) {
   const meta = generateMeta();
   return {
@@ -225,7 +225,6 @@ function getHoroscope(sign, period) {
   };
 }
 
-// Преобразование ключа периода в читаемое название
 function getPeriodName(period) {
   const periodNames = {
     daily: 'Сегодня',
@@ -235,11 +234,10 @@ function getPeriodName(period) {
   return periodNames[period] || period;
 }
 
-// Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
   let currentSign = null;
 
-  // 1. Инициализация сетки знаков зодиака
+  //сетка знаков
   const zodiacGrid = document.getElementById('zodiacGrid');
   if (zodiacGrid) {
     Object.keys(zodiacData).forEach(sign => {
@@ -268,18 +266,16 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Не найден элемент с ID "zodiacGrid"');
   }
 
-  // 2. Заполнение выпадающих списков
+  //заполнение
   const fillSelect = (selectElement) => {
     if (!selectElement) return;
     
-    // Очистка и добавление пустого варианта
     selectElement.innerHTML = '';
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = 'Выберите знак';
     selectElement.appendChild(defaultOption);
     
-    // Добавление знаков зодиака
     Object.keys(zodiacData).forEach(sign => {
       const option = document.createElement('option');
       option.value = sign;
@@ -291,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fillSelect(document.getElementById('sign1'));
   fillSelect(document.getElementById('sign2'));
 
-  // 3. Проверка совместимости
+  //совместимость
   const checkCompatibilityBtn = document.getElementById('checkCompatibilityBtn');
   if (checkCompatibilityBtn) {
     checkCompatibilityBtn.addEventListener('click', () => {
@@ -331,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Получение гороскопа
+  //получение гороскопа
   const getHoroscopeBtn = document.getElementById('getHoroscopeBtn');
   if (getHoroscopeBtn) {
     getHoroscopeBtn.addEventListener('click', () => {
@@ -369,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Переключение вкладок
+  //переключение вкладок
   const tabButtons = document.querySelectorAll('.tab-btn');
   if (tabButtons.length > 0) {
     tabButtons.forEach(btn => {
@@ -379,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     
-    // Активация первой вкладки по умолчанию
+    //активация первой вкладки по ум
     tabButtons[0].classList.add('active');
   }
 });
