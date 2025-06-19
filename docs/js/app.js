@@ -242,6 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentSign = null;
 
   const grid = document.getElementById('zodiacGrid');
+  if (!grid) {
+    console.error('Element with id "zodiacGrid" not found');
+    return;
+  }
+
   Object.keys(zodiacData).forEach(sign => {
     const data = zodiacData[sign];
     const element = document.createElement('div');
@@ -266,68 +271,88 @@ document.addEventListener('DOMContentLoaded', () => {
   const sign2Select = document.getElementById('sign2');
   const userSignSelect = document.getElementById('userSignSelect');
   
-  Object.keys(zodiacData).forEach(sign => {
-    const option = document.createElement('option');
-    option.value = sign;
-    option.textContent = zodiacData[sign].name;
-    
-    sign1Select.appendChild(option.cloneNode(true));
-    sign2Select.appendChild(option.cloneNode(true));
-    userSignSelect.appendChild(option.cloneNode(true));
-  });
+  if (sign1Select && sign2Select && userSignSelect) {
+    Object.keys(zodiacData).forEach(sign => {
+      const option = document.createElement('option');
+      option.value = sign;
+      option.textContent = zodiacData[sign].name;
+      
+      sign1Select.appendChild(option.cloneNode(true));
+      sign2Select.appendChild(option.cloneNode(true));
+      userSignSelect.appendChild(option.cloneNode(true));
+    });
+  }
 
   //проверка совместимости
-  document.getElementById('checkCompatibilityBtn').addEventListener('click', () => {
-    const sign1 = sign1Select.value;
-    const sign2 = sign2Select.value;
-    
-    if (!sign1 || !sign2) {
-      alert('Пожалуйста, выберите оба знака зодиака');
-      return;
-    }
-    
-    const compatibility = Math.floor(Math.random() * 90) + 10;
-    
-    let message = '';
-    if (compatibility < 30) {
-      message = 'Низкая совместимость. Возможны трудности в отношениях.';
-    } else if (compatibility < 60) {
-      message = 'Средняя совместимость. Отношения возможны, но потребуют усилий.';
-    } else if (compatibility < 85) {
-      message = 'Хорошая совместимость! У вас много общего.';
-    } else {
-      message = 'Отличная совместимость! Идеальное сочетание!';
-    }
-    
-    document.getElementById('compatibilityResult').innerHTML = `
-      <div class="compatibility-score">
-        <div class="score-circle" style="--score: ${compatibility}">
-          <span>${compatibility}%</span>
-        </div>
-        <p>${zodiacData[sign1].name} и ${zodiacData[sign2].name}</p>
-        <p class="compatibility-message">${message}</p>
-      </div>
-    `;
-  });
+  const checkCompatibilityBtn = document.getElementById('checkCompatibilityBtn');
+  if (checkCompatibilityBtn) {
+    checkCompatibilityBtn.addEventListener('click', () => {
+      const sign1 = sign1Select.value;
+      const sign2 = sign2Select.value;
+      
+      if (!sign1 || !sign2) {
+        alert('Пожалуйста, выберите оба знака зодиака');
+        return;
+      }
+      
+      const compatibility = Math.floor(Math.random() * 90) + 10;
+      
+      let message = '';
+      if (compatibility < 30) {
+        message = 'Низкая совместимость. Возможны трудности в отношениях.';
+      } else if (compatibility < 60) {
+        message = 'Средняя совместимость. Отношения возможны, но потребуют усилий.';
+      } else if (compatibility < 85) {
+        message = 'Хорошая совместимость! У вас много общего.';
+      } else {
+        message = 'Отличная совместимость! Идеальное сочетание!';
+      }
+      
+      const compatibilityResult = document.getElementById('compatibilityResult');
+      if (compatibilityResult) {
+        compatibilityResult.innerHTML = `
+          <div class="compatibility-score">
+            <div class="score-circle" style="--score: ${compatibility}">
+              <span>${compatibility}%</span>
+            </div>
+            <p>${zodiacData[sign1].name} и ${zodiacData[sign2].name}</p>
+            <p class="compatibility-message">${message}</p>
+          </div>
+        `;
+      }
+    });
+  }
 
-  document.getElementById('getHoroscopeBtn').addEventListener('click', () => {
-    if (!currentSign) return;
-    
-    const period = document.querySelector('.tab-btn.active').dataset.period;
-    const horoscope = getHoroscope(currentSign, period);
-    
-    document.getElementById('horoscopeContent').innerHTML = `
-      <h4>${zodiacData[currentSign].name} • ${getPeriodName(period)}</h4>
-      <div class="prediction">${horoscope.description}</div>
-      <div class="details">
-        <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
-        <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
-        <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
-      </div>
-    `;
+  const getHoroscopeBtn = document.getElementById('getHoroscopeBtn');
+  if (getHoroscopeBtn) {
+    getHoroscopeBtn.addEventListener('click', () => {
+      if (!currentSign) return;
+      
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (!activeTab) return;
+      
+      const period = activeTab.dataset.period;
+      const horoscope = getHoroscope(currentSign, period);
+      
+      const horoscopeContent = document.getElementById('horoscopeContent');
+      if (horoscopeContent) {
+        horoscopeContent.innerHTML = `
+          <h4>${zodiacData[currentSign].name} • ${getPeriodName(period)}</h4>
+          <div class="prediction">${horoscope.description}</div>
+          <div class="details">
+            <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
+            <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
+            <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
+          </div>
+        `;
+      }
 
-    document.getElementById('horoscopeResult').scrollIntoView({behavior: 'smooth'});//прокрутка к результатам
-  });
+      const horoscopeResult = document.getElementById('horoscopeResult');
+      if (horoscopeResult) {
+        horoscopeResult.scrollIntoView({behavior: 'smooth'});//прокрутка к результатам
+      }
+    });
+  }
 
   function getPeriodName(period) {
     return {
