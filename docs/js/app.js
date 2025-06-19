@@ -271,6 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
       </div>
     `;
+
+    document.getElementById('horoscopeResult').scrollIntoView({behavior: 'smooth'});//прокрутка к результатам
   });
 
   function getPeriodName(period) {
