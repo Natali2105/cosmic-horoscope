@@ -1,4 +1,4 @@
-// Инициализация знаков зодиака
+// Инициализация знаков зодиака (с английскими значениями для API)
 const zodiacSigns = [
   { name: "Овен", icon: "♈", value: "aries" },
   { name: "Телец", icon: "♉", value: "taurus" },
@@ -14,22 +14,55 @@ const zodiacSigns = [
   { name: "Рыбы", icon: "♓", value: "pisces" }
 ];
 
-// Функция для получения реального гороскопа
-async function getRealHoroscope(signValue, period = 'today') {
+// Локальные гороскопы как резервный вариант
+const localHoroscopes = {
+  aries: {
+    daily: "Сегодня звезды благоприятствуют новым начинаниям. Смело действуйте!",
+    weekly: "Неделя начнется активно. Во второй половине возможны неожиданные события.",
+    monthly: "Месяц принесет важные встречи. Будьте открыты для новых возможностей."
+  },
+  taurus: {
+    daily: "Сегодня сосредоточьтесь на финансовых вопросах. Избегайте импульсивных трат.",
+    weekly: "Неделя будет стабильной. Хорошее время для планирования.",
+    monthly: "Месяц потребует терпения. Результаты придут позже, но будут значительными."
+  },
+  // ... добавьте аналогично для всех знаков ...
+  pisces: {
+    daily: "День хорош для творчества. Прислушайтесь к интуиции.",
+    weekly: "Неделя эмоциональных переживаний. Найдите время для отдыха.",
+    monthly: "Месяц духовного роста. Обратите внимание на знаки судьбы."
+  }
+};
+
+// Функция для получения гороскопа
+async function getHoroscope(signValue, period = 'daily') {
   try {
-    const response = await fetch(`https://aztro.sameerkumar.website/?sign=${signValue}&day=${period}`, {
-      method: 'POST'
+    // Пробуем получить реальный гороскоп
+    const apiUrl = `https://aztro.sameerkumar.website/?sign=${signValue}&day=${period}`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json'
+      }
     });
     
     if (!response.ok) throw new Error('API не отвечает');
-    return await response.json();
-  } catch (error) {
-    console.error('Ошибка API:', error);
+    const data = await response.json();
+    
     return {
-      description: 'Не удалось загрузить гороскоп. Попробуйте позже.',
-      mood: 'Неизвестно',
-      lucky_number: '--',
-      lucky_time: '--'
+      description: data.description,
+      mood: data.mood || 'Хорошее',
+      luckyNumber: data.lucky_number || Math.floor(Math.random() * 10) + 1,
+      luckyTime: data.lucky_time || 'день'
+    };
+  } catch (error) {
+    console.log('Используем локальный гороскоп:', error);
+    // Возвращаем локальный гороскоп если API не работает
+    return {
+      description: localHoroscopes[signValue]?.[period] || "Гороскоп временно недоступен",
+      mood: ['Хорошее', 'Отличное', 'Нейтральное'][Math.floor(Math.random() * 3)],
+      luckyNumber: Math.floor(Math.random() * 10) + 1,
+      luckyTime: ['утро', 'день', 'вечер'][Math.floor(Math.random() * 3)]
     };
   }
 }
@@ -60,11 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentSign) return;
     
     const periodMap = {
-      daily: 'today',
-      weekly: 'week',
-      monthly: 'month'
+      daily: 'daily',
+      weekly: 'weekly',
+      monthly: 'monthly'
     };
-    const period = periodMap[document.querySelector('.tab-btn.active').dataset.period];
+    const period = document.querySelector('.tab-btn.active').dataset.period;
     
     // Показать загрузку
     const contentEl = document.getElementById('horoscopeContent');
@@ -75,17 +108,17 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
     
-    // Получить реальный гороскоп
-    const horoscope = await getRealHoroscope(currentSign.value, period);
+    // Получить гороскоп
+    const horoscope = await getHoroscope(currentSign.value, periodMap[period]);
     
     // Отобразить результат
     contentEl.innerHTML = `
-      <h4>${currentSign.name} • ${period === 'today' ? 'Сегодня' : period === 'week' ? 'На неделю' : 'На месяц'}</h4>
+      <h4>${currentSign.name} • ${period === 'daily' ? 'Сегодня' : period === 'weekly' ? 'На неделю' : 'На месяц'}</h4>
       <div class="prediction">${horoscope.description}</div>
       <div class="details">
         <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
-        <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.lucky_number}</p>
-        <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.lucky_time}</p>
+        <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
+        <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
       </div>
     `;
   });
@@ -96,26 +129,5 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
     });
-  });
-
-  // Голосовой ввод
-  document.getElementById('voiceBtn').addEventListener('click', async () => {
-    try {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'ru-RU';
-      
-      recognition.onresult = (event) => {
-        const command = event.results[0][0].transcript.toLowerCase();
-        const foundSign = zodiacSigns.find(s => 
-          command.includes(s.name.toLowerCase()) || 
-          command.includes(s.value.toLowerCase())
-        );
-        if (foundSign) selectSign(foundSign.name, foundSign.value);
-      };
-      
-      recognition.start();
-    } catch (e) {
-      alert('Голосовой ввод не поддерживается в вашем браузере');
-    }
   });
 });
