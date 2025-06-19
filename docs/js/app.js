@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('getHoroscopeBtn').disabled = false;
       currentSign = sign;
       
-      // Прокрутка к кнопке "Показать гороскоп" после выбора знака
+      //Прокрутка к показать гороскоп
       document.getElementById('getHoroscopeBtn').scrollIntoView({
         behavior: 'smooth',
         block: 'center'
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.appendChild(element);
   });
 
-  // Заполняем выпадающие списки для проверки совместимости
+  //выпадающие списки совместимости
   const sign1Select = document.getElementById('sign1');
   const sign2Select = document.getElementById('sign2');
   const userSignSelect = document.getElementById('userSignSelect');
