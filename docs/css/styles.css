@@ -491,3 +491,41 @@ body::before {
     flex-direction: column;
   }
 }
+/*доп*/
+.loading {
+  text-align: center;
+  padding: 20px;
+}
+
+.loading i {
+  font-size: 2em;
+  margin-bottom: 10px;
+  color: var(--cosmic-pink);
+}
+
+.prediction {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid var(--cosmic-pink);
+}
+
+.details {
+  background: rgba(106, 76, 147, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.details p {
+  margin: 8px 0;
+}
+
+.details i {
+  width: 20px;
+  text-align: center;
+  color: var(--star-yellow);
+}
