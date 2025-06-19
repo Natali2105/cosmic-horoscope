@@ -254,6 +254,55 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.appendChild(element);
   });
 
+    // Заполняем выпадающие списки для проверки совместимости
+  const sign1Select = document.getElementById('sign1');
+  const sign2Select = document.getElementById('sign2');
+  const userSignSelect = document.getElementById('userSignSelect');
+  
+  Object.keys(zodiacData).forEach(sign => {
+    const option = document.createElement('option');
+    option.value = sign;
+    option.textContent = zodiacData[sign].name;
+    
+    sign1Select.appendChild(option.cloneNode(true));
+    sign2Select.appendChild(option.cloneNode(true));
+    userSignSelect.appendChild(option.cloneNode(true));
+  });
+
+  //проверка совместимости
+  document.getElementById('checkCompatibilityBtn').addEventListener('click', () => {
+    const sign1 = sign1Select.value;
+    const sign2 = sign2Select.value;
+    
+    if (!sign1 || !sign2) {
+      alert('Пожалуйста, выберите оба знака зодиака');
+      return;
+    }
+    
+    const compatibility = Math.floor(Math.random() * 90) + 10;
+    
+    let message = '';
+    if (compatibility < 30) {
+      message = 'Низкая совместимость. Возможны трудности в отношениях.';
+    } else if (compatibility < 60) {
+      message = 'Средняя совместимость. Отношения возможны, но потребуют усилий.';
+    } else if (compatibility < 85) {
+      message = 'Хорошая совместимость! У вас много общего.';
+    } else {
+      message = 'Отличная совместимость! Идеальное сочетание!';
+    }
+    
+    document.getElementById('compatibilityResult').innerHTML = `
+      <div class="compatibility-score">
+        <div class="score-circle" style="--score: ${compatibility}">
+          <span>${compatibility}%</span>
+        </div>
+        <p>${zodiacData[sign1].name} и ${zodiacData[sign2].name}</p>
+        <p class="compatibility-message">${message}</p>
+      </div>
+    `;
+  });
+
   let currentSign = null;
 
   document.getElementById('getHoroscopeBtn').addEventListener('click', () => {
