@@ -72,3 +72,59 @@ document.addEventListener('DOMContentLoaded', () => {
 });
   
 });
+
+
+
+// Добавьте эту функцию для получения реального гороскопа
+async function getRealHoroscope(sign, period = 'today') {
+  try {
+    const response = await fetch(`https://aztro.sameerkumar.website/?sign=${sign.toLowerCase()}&day=${period}`, {
+      method: 'POST'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Ошибка получения гороскопа');
+    }
+    
+    const data = await response.json();
+    return {
+      prediction: data.description,
+      mood: data.mood,
+      luckyNumber: data.lucky_number,
+      luckyTime: data.lucky_time
+    };
+  } catch (error) {
+    console.error('Ошибка:', error);
+    return {
+      prediction: 'Не удалось получить гороскоп. Попробуйте позже.',
+      mood: '',
+      luckyNumber: '',
+      luckyTime: ''
+    };
+  }
+}
+
+// Обновите обработчик кнопки
+document.getElementById('getHoroscopeBtn').addEventListener('click', async () => {
+  const selectedSign = document.getElementById('userSign').textContent;
+  if (selectedSign !== 'Не выбран') {
+    const period = document.querySelector('.tab-btn.active').dataset.period;
+    
+    // Показать загрузку
+    document.getElementById('horoscopeContent').innerHTML = '<p>Загрузка гороскопа...</p>';
+    
+    // Получить реальный гороскоп
+    const horoscope = await getRealHoroscope(selectedSign, period);
+    
+    // Отобразить результат
+    document.getElementById('horoscopeContent').innerHTML = `
+      <h4>Гороскоп для ${selectedSign}</h4>
+      <p>${horoscope.prediction}</p>
+      <div class="horoscope-details">
+        <p><strong>Настроение:</strong> ${horoscope.mood}</p>
+        <p><strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
+        <p><strong>Благоприятное время:</strong> ${horoscope.luckyTime}</p>
+      </div>
+    `;
+  }
+});
