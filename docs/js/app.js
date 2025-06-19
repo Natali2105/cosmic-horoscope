@@ -1,5 +1,5 @@
 // Инициализация знаков зодиака (с английскими значениями для API)
-const zodiacSigns = [
+/*const zodiacSigns = [
   { name: "Овен", icon: "♈", value: "aries" },
   { name: "Телец", icon: "♉", value: "taurus" },
   { name: "Близнецы", icon: "♊", value: "gemini" },
@@ -130,4 +130,113 @@ document.addEventListener('DOMContentLoaded', () => {
       this.classList.add('active');
     });
   });
+});*/
+
+//Actro API не работает. АЛЬТЕРНАТИВА
+
+
+const zodiacData = {
+  aries: {
+    name: "Овен",
+    icon: "♈",
+    daily: "Сегодня звезды благоприятствуют смелым действиям! Идеальный день для новых начинаний.",
+    weekly: "Неделя начнется активно - используйте эту энергию. К выходным возможны неожиданные повороты.",
+    monthly: "Месяц принесет важные встречи. Особое внимание уделите второй неделе - там будут ключевые события."
+  },
+  taurus: {
+    name: "Телец",
+    icon: "♉",
+    daily: "День стабильности. Хорошее время для решения финансовых вопросов.",
+    weekly: "Спокойная неделя. Лучшее время для завершения старых дел.",
+    monthly: "Месяц терпения. Результаты придут позже, но будут значительными."
+  },
+  //для всех знаков
+  pisces: {
+    name: "Рыбы",
+    icon: "♓",
+    daily: "День творчества и интуиции. Прислушайтесь к внутреннему голосу.",
+    weekly: "Эмоциональная неделя. Найдите время для отдыха и медитации.",
+    monthly: "Месяц духовного роста. Обращайте внимание на знаки судьбы."
+  }
+};
+
+// Генерация случайных мета-данных
+function generateMeta() {
+  const moods = ["Отличное", "Хорошее", "Нейтральное", "Волнующее"];
+  const times = ["утро", "день", "вечер", "ночь"];
+  
+  return {
+    mood: moods[Math.floor(Math.random() * moods.length)],
+    luckyNumber: Math.floor(Math.random() * 9) + 1,
+    luckyTime: times[Math.floor(Math.random() * times.length)]
+  };
+}
+
+// Получение гороскопа
+function getHoroscope(sign, period) {
+  const meta = generateMeta();
+  return {
+    description: zodiacData[sign][period],
+    mood: meta.mood,
+    luckyNumber: meta.luckyNumber,
+    luckyTime: meta.luckyTime
+  };
+}
+
+// Инициализация страницы
+document.addEventListener('DOMContentLoaded', () => {
+  // Заполнение сетки знаков
+  const grid = document.getElementById('zodiacGrid');
+  Object.keys(zodiacData).forEach(sign => {
+    const data = zodiacData[sign];
+    const element = document.createElement('div');
+    element.className = 'zodiac-sign';
+    element.innerHTML = `<i>${data.icon}</i><span>${data.name}</span>`;
+    element.addEventListener('click', () => {
+      document.getElementById('userSign').textContent = data.name;
+      document.getElementById('getHoroscopeBtn').disabled = false;
+      currentSign = sign;
+    });
+    grid.appendChild(element);
+  });
+
+  let currentSign = null;
+
+  // Обработчик кнопки гороскопа
+  document.getElementById('getHoroscopeBtn').addEventListener('click', () => {
+    if (!currentSign) return;
+    
+    const period = document.querySelector('.tab-btn.active').dataset.period;
+    const horoscope = getHoroscope(currentSign, period);
+    
+    document.getElementById('horoscopeContent').innerHTML = `
+      <h4>${zodiacData[currentSign].name} • ${getPeriodName(period)}</h4>
+      <div class="prediction">${horoscope.description}</div>
+      <div class="details">
+        <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
+        <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
+        <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
+      </div>
+    `;
+  });
+
+  // Вспомогательная функция
+  function getPeriodName(period) {
+    return {
+      daily: 'Сегодня',
+      weekly: 'На неделю',
+      monthly: 'На месяц'
+    }[period];
+  }
+
+  // Инициализация табов
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
 });
+
+
+
