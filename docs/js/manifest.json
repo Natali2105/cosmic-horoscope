@@ -1,0 +1,9 @@
+{
+  "name": "Космический гороскоп",
+  "description": "Персональный гороскоп и совместимость знаков зодиака",
+  "type": "app",
+  "platform": "web",
+  "version": "1.0.0",
+  "entrypoint": "https://natali2105.github.io/cosmic-horoscope/",
+  "scenario": "server/sber/scenario.json"
+}
