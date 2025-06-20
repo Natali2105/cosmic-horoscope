@@ -1,4 +1,5 @@
 version: "1.0"
+platformVersion: "1.0"
 settings:
   runtime: "nodejs18"
   entrypoint: "server/app.js"
