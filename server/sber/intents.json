@@ -1,1 +1,27 @@
-//Намерения пользователя
+{
+  "get_horoscope": {
+    "slots": {
+      "sign": {
+        "type": "ZODIAC_SIGN",
+        "required": true
+      },
+      "period": {
+        "type": "PERIOD",
+        "required": false,
+        "default": "daily"
+      }
+    }
+  },
+  "check_compatibility": {
+    "slots": {
+      "sign1": {
+        "type": "ZODIAC_SIGN",
+        "required": true
+      },
+      "sign2": {
+        "type": "ZODIAC_SIGN",
+        "required": true
+      }
+    }
+  }
+}
