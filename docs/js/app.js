@@ -202,7 +202,7 @@ const zodiacData = {
   }
 };
 
-//случайные данные
+//случ данные
 function generateMeta() {
   const moods = ["Отличное", "Хорошее", "Нейтральное", "Волнующее"];
   const times = ["утро", "день", "вечер", "ночь"];
@@ -214,7 +214,7 @@ function generateMeta() {
   };
 }
 
-//получение
+//получение гороскопа
 function getHoroscope(sign, period) {
   const meta = generateMeta();
   return {
@@ -237,6 +237,154 @@ function getPeriodName(period) {
 document.addEventListener('DOMContentLoaded', () => {
   let currentSign = null;
 
+  //голос
+  const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+  
+  if (voiceSearchBtn) {
+    voiceSearchBtn.addEventListener('click', () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (!SpeechRecognition) {
+        alert('Голосовой поиск не поддерживается в вашем браузере');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.interimResults = false;
+      
+      recognition.onstart = () => {
+        voiceSearchBtn.innerHTML = '<i class="fas fa-microphone-alt"></i> Слушаю...';
+        voiceSearchBtn.classList.add('listening');
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        processVoiceCommand(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Ошибка распознавания:', event.error);
+        resetVoiceButton();
+        alert('Ошибка распознавания голоса. Попробуйте еще раз.');
+      };
+
+      recognition.onend = () => {
+        resetVoiceButton();
+      };
+
+      recognition.start();
+    });
+  }
+
+  function resetVoiceButton() {
+    if (voiceSearchBtn) {
+      voiceSearchBtn.innerHTML = '<i class="fas fa-microphone-alt"></i> Голосовой поиск';
+      voiceSearchBtn.classList.remove('listening');
+    }
+  }
+
+  function processVoiceCommand(text) {
+    const signsMap = {
+      'овен': 'aries', 'овна': 'aries',
+      'телец': 'taurus', 'тельца': 'taurus',
+      'близнец': 'gemini', 'близнецов': 'gemini',
+      'рак': 'cancer', 'рака': 'cancer',
+      'лев': 'leo', 'льва': 'leo',
+      'дева': 'virgo', 'девы': 'virgo',
+      'весы': 'libra', 'весов': 'libra',
+      'скорпион': 'scorpio', 'скорпиона': 'scorpio',
+      'стрелец': 'sagittarius', 'стрельца': 'sagittarius',
+      'козерог': 'capricorn', 'козерога': 'capricorn',
+      'водолей': 'aquarius', 'водолея': 'aquarius',
+      'рыбы': 'pisces', 'рыб': 'pisces'
+    };
+
+    let foundSign = null;
+    let period = 'daily'; 
+    
+    for (const [rusSign, engSign] of Object.entries(signsMap)) {
+      if (text.includes(rusSign)) {
+        foundSign = engSign;
+        break;
+      }
+    }
+
+    if (text.includes('недел')) period = 'weekly';
+    if (text.includes('месяц')) period = 'monthly';
+
+    if (foundSign) {
+      currentSign = foundSign;
+      updateUIForSign(foundSign);
+      showHoroscope(foundSign, period);
+      speakHoroscope(foundSign, period);
+    } else {
+      alert('Не удалось распознать знак зодиака. Попробуйте сказать, например: "Гороскоп для Овна на неделю"');
+    }
+  }
+
+  function updateUIForSign(sign) {
+    const userSignElement = document.getElementById('userSign');
+    const horoscopeBtn = document.getElementById('getHoroscopeBtn');
+    
+    if (userSignElement) userSignElement.textContent = zodiacData[sign].name;
+    if (horoscopeBtn) horoscopeBtn.disabled = false;
+  }
+
+  function showHoroscope(sign, period) {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.period === period) {
+        btn.classList.add('active');
+      }
+    });
+
+    //получение, отображение
+    const horoscope = getHoroscope(sign, period);
+    const horoscopeContent = document.getElementById('horoscopeContent');
+    
+    if (horoscopeContent) {
+      horoscopeContent.innerHTML = `
+        <h4>${zodiacData[sign].name} • ${getPeriodName(period)}</h4>
+        <div class="prediction">${horoscope.description}</div>
+        <div class="details">
+          <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
+          <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
+          <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
+        </div>
+      `;
+    }
+
+    //прокрутка
+    const horoscopeResult = document.getElementById('horoscopeResult');
+    if (horoscopeResult) horoscopeResult.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function speakHoroscope(sign, period) {
+    const horoscope = getHoroscope(sign, period);
+    const periodNames = {
+      daily: 'на день',
+      weekly: 'на неделю',
+      monthly: 'на месяц'
+    };
+
+    const speechText = `
+      Гороскоп для ${zodiacData[sign].name} ${periodNames[period]}. 
+      ${horoscope.description}. 
+      Настроение: ${horoscope.mood}. 
+      Счастливое число: ${horoscope.luckyNumber}. 
+      Лучшее время: ${horoscope.luckyTime}.
+    `;
+
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      utterance.lang = 'ru-RU';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
   //сетка знаков
   const zodiacGrid = document.getElementById('zodiacGrid');
   if (zodiacGrid) {
@@ -247,14 +395,10 @@ document.addEventListener('DOMContentLoaded', () => {
       element.innerHTML = `<i>${data.icon}</i><span>${data.name}</span>`;
       element.addEventListener('click', () => {
         currentSign = sign;
-        const userSignElement = document.getElementById('userSign');
-        const horoscopeBtn = document.getElementById('getHoroscopeBtn');
+        updateUIForSign(sign);
         
-        if (userSignElement) userSignElement.textContent = data.name;
-        if (horoscopeBtn) horoscopeBtn.disabled = false;
-        
-        if (horoscopeBtn) {
-          horoscopeBtn.scrollIntoView({
+        if (zodiacGrid) {
+          zodiacGrid.scrollIntoView({
             behavior: 'smooth',
             block: 'center'
           });
@@ -262,11 +406,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       zodiacGrid.appendChild(element);
     });
-  } else {
-    console.error('Не найден элемент с ID "zodiacGrid"');
   }
 
-  //заполнение
+  //заполнение совместимости
   const fillSelect = (selectElement) => {
     if (!selectElement) return;
     
@@ -287,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fillSelect(document.getElementById('sign1'));
   fillSelect(document.getElementById('sign2'));
 
-  //совместимость
+  //проверка совместимости
   const checkCompatibilityBtn = document.getElementById('checkCompatibilityBtn');
   if (checkCompatibilityBtn) {
     checkCompatibilityBtn.addEventListener('click', () => {
@@ -343,25 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       const period = activeTab.dataset.period;
-      const horoscope = getHoroscope(currentSign, period);
-      
-      const horoscopeContent = document.getElementById('horoscopeContent');
-      if (horoscopeContent) {
-        horoscopeContent.innerHTML = `
-          <h4>${zodiacData[currentSign].name} • ${getPeriodName(period)}</h4>
-          <div class="prediction">${horoscope.description}</div>
-          <div class="details">
-            <p><i class="fas fa-smile"></i> <strong>Настроение:</strong> ${horoscope.mood}</p>
-            <p><i class="fas fa-star"></i> <strong>Счастливое число:</strong> ${horoscope.luckyNumber}</p>
-            <p><i class="fas fa-clock"></i> <strong>Лучшее время:</strong> ${horoscope.luckyTime}</p>
-          </div>
-        `;
-      }
-      
-      const horoscopeResult = document.getElementById('horoscopeResult');
-      if (horoscopeResult) {
-        horoscopeResult.scrollIntoView({ behavior: 'smooth' });
-      }
+      showHoroscope(currentSign, period);
     });
   }
 
