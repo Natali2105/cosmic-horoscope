@@ -2,13 +2,63 @@
   "intents": {
     "get_horoscope": {
       "phrases": [
-        "Каков гороскоп для Овна",
-        "Что ждёт Рака сегодня",
-        "Гороскоп на неделю для Близнецов"
+        "Каков гороскоп для {sign}",
+        "Что ждёт {sign} {period}",
+        "Гороскоп {period} для {sign}",
+        "Скажи гороскоп для {sign}",
+        "Какие предсказания для {sign}"
       ],
       "responses": {
-        "default": "Гороскоп для {sign}: {prediction}"
+        "default": "Гороскоп для {sign} {period}: {prediction}. Настроение: {mood}. Счастливое число: {luckyNumber}. Лучшее время: {luckyTime}"
+      },
+      "slots": {
+        "sign": {
+          "type": "ZODIAC_SIGN",
+          "required": true,
+          "questions": ["Для какого знака зодиака показать гороскоп?"]
+        },
+        "period": {
+          "type": "PERIOD",
+          "required": false,
+          "default": "daily",
+          "questions": ["На какой период показать гороскоп?"]
+        }
       }
+    },
+    "check_compatibility": {
+      "phrases": [
+        "Совместимость {sign1} и {sign2}",
+        "Насколько совместимы {sign1} и {sign2}",
+        "Проверь совместимость {sign1} с {sign2}"
+      ],
+      "responses": {
+        "default": "Совместимость {sign1} и {sign2}: {compatibility}%. {message}"
+      }
+    }
+  },
+  "types": {
+    "ZODIAC_SIGN": {
+      "values": [
+        {"value": "овен", "synonyms": ["овна"]},
+        {"value": "телец", "synonyms": ["тельца"]},
+        {"value": "близнецы", "synonyms": ["близнецов"]},
+        {"value": "рак", "synonyms": ["рака"]},
+        {"value": "лев", "synonyms": ["льва"]},
+        {"value": "дева", "synonyms": ["девы"]},
+        {"value": "весы", "synonyms": ["весов"]},
+        {"value": "скорпион", "synonyms": ["скорпиона"]},
+        {"value": "стрелец", "synonyms": ["стрельца"]},
+        {"value": "козерог", "synonyms": ["козерога"]},
+        {"value": "водолей", "synonyms": ["водолея"]},
+        {"value": "рыбы", "synonyms": ["рыб"]}
+      ]
+    },
+    "PERIOD": {
+      "values": [
+        {"value": "сегодня", "synonyms": ["на день", "день"]},
+        {"value": "на неделю", "synonyms": ["неделю", "неделя"]},
+        {"value": "на месяц", "synonyms": ["месяц", "месяца"]}
+      ]
     }
   }
 }
