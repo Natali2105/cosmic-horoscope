@@ -1,7 +1,9 @@
 const express = require('express');
+const cors = require('cors');
 const { createSberServer } = require('@salutejs/server');
 
 const app = express();
+app.use(cors());
 
 //данные гороскопа
 const zodiacData = {
@@ -117,20 +119,21 @@ const sberApp = createSberServer({
 
 sberApp.intent('get_horoscope', ({ req, res }) => {
   try {
-    const sign = req.slots.sign.value;
+    const sign = req.slots.sign.value.toLowerCase();
     const period = req.slots.period?.value || 'daily';
     const horoscope = generateHoroscope(sign, period);
     res.json(horoscope);
   } catch (error) {
-    console.error('Error processing horoscope request:', error);
-    res.json({
+    console.error('Error:', error);
+    res.status(500).json({
       status: 'error',
-      message: 'Произошла ошибка при обработке запроса'
+      message: 'Internal server error'
     });
   }
 });
 
 app.use('/sber', sberApp.getRouter());
+app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
