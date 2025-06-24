@@ -9,7 +9,9 @@
         "Какие предсказания для {sign}"
       ],
       "responses": {
-        "default": "Гороскоп для {sign} {period}: {prediction}. Настроение: {mood}. Счастливое число: {luckyNumber}. Лучшее время: {luckyTime}"
+        "default": "Гороскоп для {sign} {period}: {prediction}. Настроение: {mood}. Счастливое число: {luckyNumber}. Лучшее время: {luckyTime}",
+        "no_sign": "Пожалуйста, укажите знак зодиака. Например: 'Гороскоп для Овна'",
+        "invalid_sign": "Я не знаю такого знака зодиака. Попробуйте назвать один из этих: Овен, Телец, Близнецы, Рак, Лев, Дева, Весы, Скорпион, Стрелец, Козерог, Водолей, Рыбы"
       },
       "slots": {
         "sign": {
@@ -20,7 +22,7 @@
         "period": {
           "type": "PERIOD",
           "required": false,
-          "default": "daily",
+          "default": "сегодня",
           "questions": ["На какой период показать гороскоп?"]
         }
       }
@@ -32,7 +34,18 @@
         "Проверь совместимость {sign1} с {sign2}"
       ],
       "responses": {
-        "default": "Совместимость {sign1} и {sign2}: {compatibility}%. {message}"
+        "default": "Совместимость {sign1} и {sign2}: {compatibility}%. {message}",
+        "no_signs": "Пожалуйста, укажите два знака зодиака. Например: 'Совместимость Овна и Тельца'"
+      },
+      "slots": {
+        "sign1": {
+          "type": "ZODIAC_SIGN",
+          "required": true
+        },
+        "sign2": {
+          "type": "ZODIAC_SIGN",
+          "required": true
+        }
       }
     }
   },
