@@ -9,7 +9,7 @@
   "scenario": "server/sber/scenario.json",
   "canvas": {
     "hosting": {
-      "index": "https://your-sber-hosting-url.com/index.html"
+      "index": "https://<вставить sber-hosting-url>.com/index.html"
     }
   }
 }
