@@ -2,13 +2,13 @@
   "name": "cosmic-horoscope",
   "version": "1.1.0",
   "scripts": {
-    "start": "node server/app.js"
+    "start": "node server/app.js",
+    "healthcheck": "node server/healthcheck.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "@salutejs/server": "^1.4.0",
     "@salutejs/client": "^1.4.0",
-    "cors": "^2.8.5",
-    "body-parser": "^1.20.2"
+    "cors": "^2.8.5"
   }
 }
