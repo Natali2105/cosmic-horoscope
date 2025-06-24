@@ -1,6 +1,5 @@
 {
   "appName": "Космический гороскоп",
-  "name": "Космический гороскоп",
   "description": "Персональный гороскоп и совместимость знаков зодиака с голосовым помощником",
   "type": "smartapp",
   "platform": "sber",
@@ -8,10 +7,9 @@
   "version": "1.1.0",
   "entrypoint": "server/app.js",
   "scenario": "server/sber/scenario.json",
-  "backend": {
-    "url": "https://your-real-server.com/api",
-    "endpoints": {
-      "get_horoscope": "/get_horoscope"
+  "canvas": {
+    "hosting": {
+      "index": "https://your-sber-hosting-url.com/index.html"
     }
   }
 }
