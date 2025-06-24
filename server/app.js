@@ -4,6 +4,7 @@ const { createSberServer } = require('@salutejs/server');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 //данные гороскопа
 const zodiacData = {
@@ -112,28 +113,75 @@ function generateHoroscope(sign, period = 'daily') {
   };
 }
 
-//интеграция с Sber
 const sberApp = createSberServer({
   scenarioPath: './server/sber/scenario.json'
 });
 
+// Обработчик гороскопа
 sberApp.intent('get_horoscope', ({ req, res }) => {
   try {
-    const sign = req.slots.sign.value.toLowerCase();
+    const sign = req.slots.sign?.value?.toLowerCase();
     const period = req.slots.period?.value || 'daily';
+    
+    if (!sign) {
+      return res.json({
+        status: 'error',
+        message: 'Пожалуйста, укажите знак зодиака'
+      });
+    }
+
     const horoscope = generateHoroscope(sign, period);
     res.json(horoscope);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Internal server error'
+      message: 'Произошла ошибка'
     });
   }
 });
 
+// Обработчик совместимости
+sberApp.intent('check_compatibility', ({ req, res }) => {
+  try {
+    const sign1 = req.slots.sign1?.value?.toLowerCase();
+    const sign2 = req.slots.sign2?.value?.toLowerCase();
+    
+    if (!sign1 || !sign2) {
+      return res.json({
+        status: 'error',
+        message: 'Пожалуйста, укажите оба знака зодиака'
+      });
+    }
+
+    const compatibility = Math.floor(Math.random() * 100);
+    res.json({
+      status: 'success',
+      compatibility: compatibility,
+      message: getCompatibilityMessage(compatibility)
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Произошла ошибка'
+    });
+  }
+});
+
+function getCompatibilityMessage(percent) {
+  if (percent < 30) return 'Низкая совместимость';
+  if (percent < 60) return 'Средняя совместимость';
+  if (percent < 85) return 'Хорошая совместимость';
+  return 'Отличная совместимость!';
+}
+
 app.use('/sber', sberApp.getRouter());
-app.use(express.json());
+
+// Health check
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
