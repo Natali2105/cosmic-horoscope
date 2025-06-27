@@ -202,7 +202,54 @@ const zodiacData = {
   }
 };
 
-//случ данные
+//кэш для хранения результатов
+const horoscopeCache = {};
+const compatibilityCache = {};
+
+//получение гороскопа с кэшированием
+function getHoroscope(sign, period) {
+  const cacheKey = `${sign}_${period}`;
+  
+  if (!horoscopeCache[cacheKey]) {
+    const meta = generateMeta();
+    horoscopeCache[cacheKey] = {
+      description: zodiacData[sign][period],
+      mood: meta.mood,
+      luckyNumber: meta.luckyNumber,
+      luckyTime: meta.luckyTime
+    };
+  }
+  
+  return horoscopeCache[cacheKey];
+}
+
+//проверка совместимости с кэшированием
+function checkCompatibility(sign1, sign2) {
+  const cacheKey = `${sign1}_${sign2}`;
+  
+  if (!compatibilityCache[cacheKey]) {
+    const compatibility = Math.floor(Math.random() * 90) + 10;
+    let message = '';
+    
+    if (compatibility < 30) {
+      message = 'Низкая совместимость. Возможны трудности в отношениях.';
+    } else if (compatibility < 60) {
+      message = 'Средняя совместимость. Отношения возможны, но потребуют усилий.';
+    } else if (compatibility < 85) {
+      message = 'Хорошая совместимость! У вас много общего.';
+    } else {
+      message = 'Отличная совместимость! Идеальное сочетание!';
+    }
+    
+    compatibilityCache[cacheKey] = {
+      score: compatibility,
+      message: message
+    };
+  }
+  
+  return compatibilityCache[cacheKey];
+}
+
 function generateMeta() {
   const moods = ["Отличное", "Хорошее", "Нейтральное", "Волнующее"];
   const times = ["утро", "день", "вечер", "ночь"];
@@ -211,17 +258,6 @@ function generateMeta() {
     mood: moods[Math.floor(Math.random() * moods.length)],
     luckyNumber: Math.floor(Math.random() * 9) + 1,
     luckyTime: times[Math.floor(Math.random() * times.length)]
-  };
-}
-
-//получение гороскопа
-function getHoroscope(sign, period) {
-  const meta = generateMeta();
-  return {
-    description: zodiacData[sign][period],
-    mood: meta.mood,
-    luckyNumber: meta.luckyNumber,
-    luckyTime: meta.luckyTime
   };
 }
 
@@ -236,102 +272,130 @@ function getPeriodName(period) {
 
 document.addEventListener('DOMContentLoaded', () => {
   let currentSign = null;
+  let currentPeriod = 'daily';
 
-  //голос
-  const voiceSearchBtn = document.getElementById('voiceSearchBtn');
-  
-  if (voiceSearchBtn) {
-    voiceSearchBtn.addEventListener('click', () => {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
-      if (!SpeechRecognition) {
-        alert('Голосовой поиск не поддерживается в вашем браузере');
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'ru-RU';
-      recognition.interimResults = false;
-      
-      recognition.onstart = () => {
-        voiceSearchBtn.innerHTML = '<i class="fas fa-microphone-alt"></i> Слушаю...';
-        voiceSearchBtn.classList.add('listening');
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        processVoiceCommand(transcript);
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Ошибка распознавания:', event.error);
-        resetVoiceButton();
-        alert('Ошибка распознавания голоса. Попробуйте еще раз.');
-      };
-
-      recognition.onend = () => {
-        resetVoiceButton();
-      };
-
-      recognition.start();
+  //инициализация голосового помощника
+  const voiceBtn = document.getElementById('voiceBtn');
+  if (voiceBtn) {
+    voiceBtn.addEventListener('click', () => {
+      startVoiceAssistant();
     });
   }
 
-  function resetVoiceButton() {
-    if (voiceSearchBtn) {
-      voiceSearchBtn.innerHTML = '<i class="fas fa-microphone-alt"></i> Голосовой поиск';
-      voiceSearchBtn.classList.remove('listening');
+  async function startVoiceAssistant() {
+    try {
+      voiceBtn.innerHTML = '<i class="fas fa-microphone-alt"></i> Слушаю...';
+      voiceBtn.classList.add('listening');
+      
+      setTimeout(() => {
+        resetVoiceButton();
+        
+        //пример обработки голосовой команды
+        const command = prompt("Что вы хотите узнать? Например: 'Гороскоп для Овна на неделю' или 'Совместимость Овна и Тельца'");
+        
+        if (command) {
+          processVoiceCommand(command.toLowerCase());
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Не удалось запустить голосовой помощник');
+      resetVoiceButton();
     }
   }
 
   function processVoiceCommand(text) {
-    const signsMap = {
-      'овен': 'aries', 'овна': 'aries',
-      'телец': 'taurus', 'тельца': 'taurus',
-      'близнец': 'gemini', 'близнецов': 'gemini',
-      'рак': 'cancer', 'рака': 'cancer',
-      'лев': 'leo', 'льва': 'leo',
-      'дева': 'virgo', 'девы': 'virgo',
-      'весы': 'libra', 'весов': 'libra',
-      'скорпион': 'scorpio', 'скорпиона': 'scorpio',
-      'стрелец': 'sagittarius', 'стрельца': 'sagittarius',
-      'козерог': 'capricorn', 'козерога': 'capricorn',
-      'водолей': 'aquarius', 'водолея': 'aquarius',
-      'рыбы': 'pisces', 'рыб': 'pisces'
-    };
-
-    let foundSign = null;
-    let period = 'daily'; 
-    
-    for (const [rusSign, engSign] of Object.entries(signsMap)) {
-      if (text.includes(rusSign)) {
-        foundSign = engSign;
-        break;
+    //обработка запроса на гороскоп
+    if (text.includes('гороскоп') || text.includes('предсказание') || text.includes('что ждет')) {
+      const signs = {
+        'овен': 'aries', 'овна': 'aries',
+        'телец': 'taurus', 'тельца': 'taurus',
+        'близнец': 'gemini', 'близнецов': 'gemini',
+        'рак': 'cancer', 'рака': 'cancer',
+        'лев': 'leo', 'льва': 'leo',
+        'дева': 'virgo', 'девы': 'virgo',
+        'весы': 'libra', 'весов': 'libra',
+        'скорпион': 'scorpio', 'скорпиона': 'scorpio',
+        'стрелец': 'sagittarius', 'стрельца': 'sagittarius',
+        'козерог': 'capricorn', 'козерога': 'capricorn',
+        'водолей': 'aquarius', 'водолея': 'aquarius',
+        'рыбы': 'pisces', 'рыб': 'pisces'
+      };
+      
+      let foundSign = null;
+      let period = currentPeriod;
+      
+      //поиск знака зодиака в команде
+      for (const [rusSign, engSign] of Object.entries(signs)) {
+        if (text.includes(rusSign)) {
+          foundSign = engSign;
+          break;
+        }
       }
-    }
-
-    if (text.includes('недел')) period = 'weekly';
-    if (text.includes('месяц')) period = 'monthly';
-
-    if (foundSign) {
-      currentSign = foundSign;
-      updateUIForSign(foundSign);
-      showHoroscope(foundSign, period);
-      speakHoroscope(foundSign, period);
+      
+      //определение периода
+      if (text.includes('недел') || text.includes('неделю')) period = 'weekly';
+      if (text.includes('месяц') || text.includes('месяца')) period = 'monthly';
+      
+      if (foundSign) {
+        currentSign = foundSign;
+        currentPeriod = period;
+        updateActiveTab(period);
+        showHoroscope(foundSign, period);
+      } else {
+        alert('Не удалось распознать знак зодиака. Попробуйте сказать, например: "Гороскоп для Овна на неделю"');
+      }
+    } 
+    //обработка запроса на совместимость
+    else if (text.includes('совместимость') || text.includes('совместимы')) {
+      const signs = {
+        'овен': 'aries', 'овна': 'aries',
+        'телец': 'taurus', 'тельца': 'taurus',
+        'близнец': 'gemini', 'близнецов': 'gemini',
+        'рак': 'cancer', 'рака': 'cancer',
+        'лев': 'leo', 'льва': 'leo',
+        'дева': 'virgo', 'девы': 'virgo',
+        'весы': 'libra', 'весов': 'libra',
+        'скорпион': 'scorpio', 'скорпиона': 'scorpio',
+        'стрелец': 'sagittarius', 'стрельца': 'sagittarius',
+        'козерог': 'capricorn', 'козерога': 'capricorn',
+        'водолей': 'aquarius', 'водолея': 'aquarius',
+        'рыбы': 'pisces', 'рыб': 'pisces'
+      };
+      
+      let sign1 = null;
+      let sign2 = null;
+      
+      // Поиск знаков зодиака в команде
+      for (const [rusSign, engSign] of Object.entries(signs)) {
+        if (text.includes(rusSign)) {
+          if (!sign1) {
+            sign1 = engSign;
+          } else {
+            sign2 = engSign;
+            break;
+          }
+        }
+      }
+      
+      if (sign1 && sign2) {
+        showCompatibilityResult(sign1, sign2);
+      } else {
+        alert('Не удалось распознать знаки зодиака. Попробуйте сказать, например: "Совместимость Овна и Тельца"');
+      }
     } else {
-      alert('Не удалось распознать знак зодиака. Попробуйте сказать, например: "Гороскоп для Овна на неделю"');
+      alert('Команда не распознана. Попробуйте сказать, например: "Гороскоп для Овна на неделю" или "Совместимость Овна и Тельца"');
     }
   }
 
-  function updateUIForSign(sign) {
-    const userSignElement = document.getElementById('userSign');
-    const horoscopeBtn = document.getElementById('getHoroscopeBtn');
-    
-    if (userSignElement) userSignElement.textContent = zodiacData[sign].name;
-    if (horoscopeBtn) horoscopeBtn.disabled = false;
+  function resetVoiceButton() {
+    if (voiceBtn) {
+      voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Голосовой поиск';
+      voiceBtn.classList.remove('listening');
+    }
   }
 
-  function showHoroscope(sign, period) {
+  function updateActiveTab(period) {
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(btn => {
       btn.classList.remove('active');
@@ -339,8 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active');
       }
     });
+  }
 
-    //получение, отображение
+  function showHoroscope(sign, period) {
     const horoscope = getHoroscope(sign, period);
     const horoscopeContent = document.getElementById('horoscopeContent');
     
@@ -356,36 +421,29 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
-    //прокрутка
     const horoscopeResult = document.getElementById('horoscopeResult');
     if (horoscopeResult) horoscopeResult.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function speakHoroscope(sign, period) {
-    const horoscope = getHoroscope(sign, period);
-    const periodNames = {
-      daily: 'на день',
-      weekly: 'на неделю',
-      monthly: 'на месяц'
-    };
-
-    const speechText = `
-      Гороскоп для ${zodiacData[sign].name} ${periodNames[period]}. 
-      ${horoscope.description}. 
-      Настроение: ${horoscope.mood}. 
-      Счастливое число: ${horoscope.luckyNumber}. 
-      Лучшее время: ${horoscope.luckyTime}.
-    `;
-
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(speechText);
-      utterance.lang = 'ru-RU';
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
+  function showCompatibilityResult(sign1, sign2) {
+    const result = checkCompatibility(sign1, sign2);
+    const compatibilityResult = document.getElementById('compatibilityResult');
+    
+    if (compatibilityResult) {
+      compatibilityResult.innerHTML = `
+        <div class="compatibility-score">
+          <div class="score-circle" style="--score: ${result.score}">
+            <span>${result.score}%</span>
+          </div>
+          <p>${zodiacData[sign1].name} и ${zodiacData[sign2].name}</p>
+          <p class="compatibility-message">${result.message}</p>
+        </div>
+      `;
+      compatibilityResult.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
-  //сетка знаков
+  //заполнение сетки знаков зодиака
   const zodiacGrid = document.getElementById('zodiacGrid');
   if (zodiacGrid) {
     Object.keys(zodiacData).forEach(sign => {
@@ -395,20 +453,13 @@ document.addEventListener('DOMContentLoaded', () => {
       element.innerHTML = `<i>${data.icon}</i><span>${data.name}</span>`;
       element.addEventListener('click', () => {
         currentSign = sign;
-        updateUIForSign(sign);
-        
-        if (zodiacGrid) {
-          zodiacGrid.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
+        zodiacGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       zodiacGrid.appendChild(element);
     });
   }
 
-  //заполнение совместимости
+  //заполнение выпадающих списков для совместимости
   const fillSelect = (selectElement) => {
     if (!selectElement) return;
     
@@ -429,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fillSelect(document.getElementById('sign1'));
   fillSelect(document.getElementById('sign2'));
 
-  //проверка совместимости
+  //обработчик кнопки проверки совместимости
   const checkCompatibilityBtn = document.getElementById('checkCompatibilityBtn');
   if (checkCompatibilityBtn) {
     checkCompatibilityBtn.addEventListener('click', () => {
@@ -441,35 +492,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      const compatibility = Math.floor(Math.random() * 90) + 10;
-      let message = '';
-      
-      if (compatibility < 30) {
-        message = 'Низкая совместимость. Возможны трудности в отношениях.';
-      } else if (compatibility < 60) {
-        message = 'Средняя совместимость. Отношения возможны, но потребуют усилий.';
-      } else if (compatibility < 85) {
-        message = 'Хорошая совместимость! У вас много общего.';
-      } else {
-        message = 'Отличная совместимость! Идеальное сочетание!';
-      }
-      
-      const compatibilityResult = document.getElementById('compatibilityResult');
-      if (compatibilityResult) {
-        compatibilityResult.innerHTML = `
-          <div class="compatibility-score">
-            <div class="score-circle" style="--score: ${compatibility}">
-              <span>${compatibility}%</span>
-            </div>
-            <p>${zodiacData[sign1].name} и ${zodiacData[sign2].name}</p>
-            <p class="compatibility-message">${message}</p>
-          </div>
-        `;
-      }
+      showCompatibilityResult(sign1, sign2);
     });
   }
 
-  //получение гороскопа
+  //обработчик кнопки показа гороскопа
   const getHoroscopeBtn = document.getElementById('getHoroscopeBtn');
   if (getHoroscopeBtn) {
     getHoroscopeBtn.addEventListener('click', () => {
@@ -494,12 +521,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tabButtons.length > 0) {
     tabButtons.forEach(btn => {
       btn.addEventListener('click', function() {
+        currentPeriod = this.dataset.period;
         tabButtons.forEach(b => b.classList.remove('active'));
         this.classList.add('active');
       });
     });
     
-    //активация первой вкладки по ум
+    //активация первой вкладки по умолчанию
     tabButtons[0].classList.add('active');
   }
 });
