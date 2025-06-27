@@ -341,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSign = foundSign;
         currentPeriod = period;
         updateActiveTab(period);
+        updateSelectedSign(foundSign);
         showHoroscope(foundSign, period);
       } else {
         alert('Не удалось распознать знак зодиака. Попробуйте сказать, например: "Гороскоп для Овна на неделю"');
@@ -405,6 +406,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function updateSelectedSign(sign) {
+    const zodiacSigns = document.querySelectorAll('.zodiac-sign');
+    zodiacSigns.forEach(el => {
+      el.classList.remove('selected');
+      if (el.querySelector('i').textContent === zodiacData[sign].icon) {
+        el.classList.add('selected');
+      }
+    });
+  }
+
   function showHoroscope(sign, period) {
     const horoscope = getHoroscope(sign, period);
     const horoscopeContent = document.getElementById('horoscopeContent');
@@ -453,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
       element.innerHTML = `<i>${data.icon}</i><span>${data.name}</span>`;
       element.addEventListener('click', () => {
         currentSign = sign;
+        updateSelectedSign(sign);
         zodiacGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       zodiacGrid.appendChild(element);
