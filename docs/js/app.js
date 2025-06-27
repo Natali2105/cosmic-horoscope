@@ -202,11 +202,11 @@ const zodiacData = {
   }
 };
 
-//кэш для хранения результатов
+// Кэш для хранения результатов
 const horoscopeCache = {};
 const compatibilityCache = {};
 
-//получение гороскопа с кэшированием
+// Получение гороскопа с кэшированием
 function getHoroscope(sign, period) {
   const cacheKey = `${sign}_${period}`;
   
@@ -223,7 +223,7 @@ function getHoroscope(sign, period) {
   return horoscopeCache[cacheKey];
 }
 
-//проверка совместимости с кэшированием
+// Проверка совместимости с кэшированием
 function checkCompatibility(sign1, sign2) {
   const cacheKey = `${sign1}_${sign2}`;
   
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentSign = null;
   let currentPeriod = 'daily';
 
-  //инициализация голосового помощника
+  // Инициализация голосового помощника
   const voiceBtn = document.getElementById('voiceBtn');
   if (voiceBtn) {
     voiceBtn.addEventListener('click', () => {
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         resetVoiceButton();
         
-        //пример обработки голосовой команды
+        // Пример обработки голосовой команды
         const command = prompt("Что вы хотите узнать? Например: 'Гороскоп для Овна на неделю' или 'Совместимость Овна и Тельца'");
         
         if (command) {
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function processVoiceCommand(text) {
-    //обработка запроса на гороскоп
+    // Обработка запроса на гороскоп
     if (text.includes('гороскоп') || text.includes('предсказание') || text.includes('что ждет')) {
       const signs = {
         'овен': 'aries', 'овна': 'aries',
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let foundSign = null;
       let period = currentPeriod;
       
-      //поиск знака зодиака в команде
+      // Поиск знака зодиака в команде
       for (const [rusSign, engSign] of Object.entries(signs)) {
         if (text.includes(rusSign)) {
           foundSign = engSign;
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       
-      //определение периода
+      // Определение периода
       if (text.includes('недел') || text.includes('неделю')) period = 'weekly';
       if (text.includes('месяц') || text.includes('месяца')) period = 'monthly';
       
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Не удалось распознать знак зодиака. Попробуйте сказать, например: "Гороскоп для Овна на неделю"');
       }
     } 
-    //обработка запроса на совместимость
+    // Обработка запроса на совместимость
     else if (text.includes('совместимость') || text.includes('совместимы')) {
       const signs = {
         'овен': 'aries', 'овна': 'aries',
@@ -432,6 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    // Обновляем подсветку выбранного знака
+    updateSelectedSign(sign);
+    
     const horoscopeResult = document.getElementById('horoscopeResult');
     if (horoscopeResult) horoscopeResult.scrollIntoView({ behavior: 'smooth' });
   }
@@ -454,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  //заполнение сетки знаков зодиака
+  // Заполнение сетки знаков зодиака
   const zodiacGrid = document.getElementById('zodiacGrid');
   if (zodiacGrid) {
     Object.keys(zodiacData).forEach(sign => {
@@ -471,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  //заполнение выпадающих списков для совместимости
+  // Заполнение выпадающих списков для совместимости
   const fillSelect = (selectElement) => {
     if (!selectElement) return;
     
@@ -492,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fillSelect(document.getElementById('sign1'));
   fillSelect(document.getElementById('sign2'));
 
-  //обработчик кнопки проверки совместимости
+  // Обработчик кнопки проверки совместимости
   const checkCompatibilityBtn = document.getElementById('checkCompatibilityBtn');
   if (checkCompatibilityBtn) {
     checkCompatibilityBtn.addEventListener('click', () => {
@@ -508,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  //обработчик кнопки показа гороскопа
+  // Обработчик кнопки показа гороскопа
   const getHoroscopeBtn = document.getElementById('getHoroscopeBtn');
   if (getHoroscopeBtn) {
     getHoroscopeBtn.addEventListener('click', () => {
@@ -525,10 +528,13 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const period = activeTab.dataset.period;
       showHoroscope(currentSign, period);
+      
+      // Явно обновляем подсветку знака при нажатии кнопки
+      updateSelectedSign(currentSign);
     });
   }
 
-  //переключение вкладок
+  // Переключение вкладок
   const tabButtons = document.querySelectorAll('.tab-btn');
   if (tabButtons.length > 0) {
     tabButtons.forEach(btn => {
@@ -539,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     
-    //активация первой вкладки по умолчанию
+    // Активация первой вкладки по умолчанию
     tabButtons[0].classList.add('active');
   }
 });
