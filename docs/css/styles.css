@@ -6,7 +6,6 @@
   --galaxy-edge: #0b032d;
   --text-light: #f8f9fa;
   --text-dim: #adb5bd;
-  /* Возвращаем первоначальные размеры шрифтов */
   --font-size-large: 1.2rem;
   --font-size-medium: 1rem;
   --font-size-small: 0.9rem;
@@ -26,7 +25,7 @@ body {
   font-size: var(--font-size-medium);
 }
 
-/* Стили для телевизоров (больших экранов) */
+/*для телевизоров(больших экранов)*/
 @media (min-width: 1920px) and (min-height: 1080px) {
   :root {
     --font-size-large: 2rem;
@@ -95,7 +94,6 @@ body {
   }
 }
 
-/* Остальные стили остаются без изменений */
 .app-container {
   max-width: 800px;
   margin: 0 auto;
