@@ -1,27 +1,54 @@
 {
-  "get_horoscope": {
-    "slots": {
-      "sign": {
-        "type": "ZODIAC_SIGN",
-        "required": true
-      },
-      "period": {
-        "type": "PERIOD",
-        "required": false,
-        "default": "daily"
+  "intents": {
+    "get_horoscope": {
+      "slots": {
+        "sign": {
+          "type": "ZODIAC_SIGN",
+          "required": true
+        },
+        "period": {
+          "type": "PERIOD",
+          "required": false,
+          "default": "daily"
+        }
+      }
+    },
+    "check_compatibility": {
+      "slots": {
+        "sign1": {
+          "type": "ZODIAC_SIGN",
+          "required": true
+        },
+        "sign2": {
+          "type": "ZODIAC_SIGN",
+          "required": true
+        }
       }
     }
   },
-  "check_compatibility": {
-    "slots": {
-      "sign1": {
-        "type": "ZODIAC_SIGN",
-        "required": true
-      },
-      "sign2": {
-        "type": "ZODIAC_SIGN",
-        "required": true
-      }
+  "types": {
+    "ZODIAC_SIGN": {
+      "values": [
+        {"value": "овен", "synonyms": ["овна"]},
+        {"value": "телец", "synonyms": ["тельца"]},
+        {"value": "близнецы", "synonyms": ["близнецов"]},
+        {"value": "рак", "synonyms": ["рака"]},
+        {"value": "лев", "synonyms": ["льва"]},
+        {"value": "дева", "synonyms": ["девы"]},
+        {"value": "весы", "synonyms": ["весов"]},
+        {"value": "скорпион", "synonyms": ["скорпиона"]},
+        {"value": "стрелец", "synonyms": ["стрельца"]},
+        {"value": "козерог", "synonyms": ["козерога"]},
+        {"value": "водолей", "synonyms": ["водолея"]},
+        {"value": "рыбы", "synonyms": ["рыб"]}
+      ]
+    },
+    "PERIOD": {
+      "values": [
+        {"value": "сегодня", "synonyms": ["на день", "день"]},
+        {"value": "на неделю", "synonyms": ["неделю", "неделя"]},
+        {"value": "на месяц", "synonyms": ["месяц", "месяца"]}
+      ]
     }
   }
 }
