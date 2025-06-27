@@ -94,94 +94,129 @@ const zodiacData = {
   }
 };
 
-function generateHoroscope(sign, period = 'daily') {
-  if (!zodiacData[sign]) {
-    return {
-      status: 'error',
-      message: "Извините, не могу найти гороскоп для этого знака"
-    };
-  }
-  
-  return {
-    status: 'success',
-    sign: zodiacData[sign].name,
-    period: period,
-    prediction: zodiacData[sign][period],
-    mood: ["Отличное", "Хорошее", "Нейтральное", "Волнующее"][Math.floor(Math.random() * 4)],
-    luckyNumber: Math.floor(Math.random() * 9) + 1,
-    luckyTime: ["утро", "день", "вечер", "ночь"][Math.floor(Math.random() * 4)]
-  };
-}
-
+//инициализация Sber-сервера
 const sberApp = createSberServer({
-  scenarioPath: './server/sber/scenario.json'
+  scenarioPath: './scenario.json'
 });
 
-// Обработчик гороскопа
+//обработчик для получения гороскопа
 sberApp.intent('get_horoscope', ({ req, res }) => {
   try {
-    const sign = req.slots.sign?.value?.toLowerCase();
+    const sign = req.slots.sign.value.toLowerCase();
     const period = req.slots.period?.value || 'daily';
     
-    if (!sign) {
+    //преобразуем русские названия периодов в английские
+    const periodMap = {
+      'сегодня': 'daily',
+      'на день': 'daily',
+      'день': 'daily',
+      'на неделю': 'weekly',
+      'неделю': 'weekly',
+      'неделя': 'weekly',
+      'на месяц': 'monthly',
+      'месяц': 'monthly',
+      'месяца': 'monthly'
+    };
+    
+    const englishPeriod = periodMap[period] || 'daily';
+    
+    if (!zodiacData[sign]) {
       return res.json({
         status: 'error',
-        message: 'Пожалуйста, укажите знак зодиака'
+        message: "Извините, не могу найти гороскоп для этого знака"
       });
     }
-
-    const horoscope = generateHoroscope(sign, period);
+    
+    const horoscope = {
+      status: 'success',
+      sign: zodiacData[sign].name,
+      period: period,
+      prediction: zodiacData[sign][englishPeriod],
+      mood: ["Отличное", "Хорошее", "Нейтральное", "Волнующее"][Math.floor(Math.random() * 4)],
+      luckyNumber: Math.floor(Math.random() * 9) + 1,
+      luckyTime: ["утро", "день", "вечер", "ночь"][Math.floor(Math.random() * 4)]
+    };
+    
     res.json(horoscope);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Произошла ошибка'
+      message: 'Internal server error'
     });
   }
 });
 
-// Обработчик совместимости
+//обработчик для проверки совместимости
 sberApp.intent('check_compatibility', ({ req, res }) => {
   try {
-    const sign1 = req.slots.sign1?.value?.toLowerCase();
-    const sign2 = req.slots.sign2?.value?.toLowerCase();
+    const sign1 = req.slots.sign1.value.toLowerCase();
+    const sign2 = req.slots.sign2.value.toLowerCase();
     
-    if (!sign1 || !sign2) {
+    if (!zodiacData[sign1] || !zodiacData[sign2]) {
       return res.json({
         status: 'error',
-        message: 'Пожалуйста, укажите оба знака зодиака'
+        message: "Извините, не могу найти один из знаков зодиака"
       });
     }
-
-    const compatibility = Math.floor(Math.random() * 100);
+    
+    const compatibility = Math.floor(Math.random() * 90) + 10;
+    let message = '';
+    
+    if (compatibility < 30) {
+      message = 'Низкая совместимость. Возможны трудности в отношениях.';
+    } else if (compatibility < 60) {
+      message = 'Средняя совместимость. Отношения возможны, но потребуют усилий.';
+    } else if (compatibility < 85) {
+      message = 'Хорошая совместимость! У вас много общего.';
+    } else {
+      message = 'Отличная совместимость! Идеальное сочетание!';
+    }
+    
     res.json({
       status: 'success',
+      sign1: zodiacData[sign1].name,
+      sign2: zodiacData[sign2].name,
       compatibility: compatibility,
-      message: getCompatibilityMessage(compatibility)
+      message: message
     });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Произошла ошибка'
+      message: 'Internal server error'
     });
   }
 });
 
-function getCompatibilityMessage(percent) {
-  if (percent < 30) return 'Низкая совместимость';
-  if (percent < 60) return 'Средняя совместимость';
-  if (percent < 85) return 'Хорошая совместимость';
-  return 'Отличная совместимость!';
-}
+//запуск голосового сеанса
+app.post('/sber/start_voice', (req, res) => {
+  const sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  
+  res.json({
+    status: 'listening',
+    sessionId: sessionId
+  });
+});
+
+//проверка статуса голосового сеанса
+app.get('/sber/check_response/:sessionId', (req, res) => {
+
+  setTimeout(() => {
+    res.json({
+      status: 'completed',
+      response: {
+        intent: 'get_horoscope',
+        slots: {
+          sign: 'aries',
+          period: 'daily'
+        }
+      }
+    });
+  }, 3000);
+});
 
 app.use('/sber', sberApp.getRouter());
-
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
