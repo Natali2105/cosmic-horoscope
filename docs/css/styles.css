@@ -6,9 +6,10 @@
   --galaxy-edge: #0b032d;
   --text-light: #f8f9fa;
   --text-dim: #adb5bd;
-  --font-size-large: 2rem;
-  --font-size-medium: 1.5rem;
-  --font-size-small: 1.2rem;
+  /* Возвращаем первоначальные размеры шрифтов */
+  --font-size-large: 1.2rem;
+  --font-size-medium: 1rem;
+  --font-size-small: 0.9rem;
 }
 
 body {
@@ -25,30 +26,80 @@ body {
   font-size: var(--font-size-medium);
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.5"/></svg>') repeat,
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="1" fill="white" opacity="0.8"/></svg>') repeat;
-  background-size: 100px 100px, 200px 200px;
-  z-index: -1;
-  animation: starsMove 100s linear infinite;
+/* Стили для телевизоров (больших экранов) */
+@media (min-width: 1920px) and (min-height: 1080px) {
+  :root {
+    --font-size-large: 2rem;
+    --font-size-medium: 1.5rem;
+    --font-size-small: 1.2rem;
+  }
+
+  .app-container {
+    max-width: 1200px;
+    padding: 40px;
+  }
+
+  .app-header {
+    padding: 40px;
+    margin-bottom: 50px;
+  }
+
+  .app-header h1 {
+    font-size: 3rem;
+  }
+
+  .logo i {
+    font-size: 3em;
+  }
+
+  .card {
+    padding: 40px;
+  }
+
+  .zodiac-grid {
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .zodiac-sign {
+    padding: 20px;
+  }
+
+  .zodiac-sign i {
+    font-size: 2.5em;
+  }
+
+  .tab-btn {
+    padding: 20px 30px;
+  }
+
+  .btn {
+    padding: 25px 40px;
+    max-width: 500px;
+  }
+
+  .compatibility-selector select {
+    padding: 20px;
+    min-width: 200px;
+  }
+
+  .score-circle {
+    width: 200px;
+    height: 200px;
+  }
+
+  .score-circle span {
+    width: 160px;
+    height: 160px;
+    font-size: 36px;
+  }
 }
 
-@keyframes starsMove {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-200px); }
-}
-
+/* Остальные стили остаются без изменений */
 .app-container {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 40px;
+  padding: 20px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -58,8 +109,8 @@ body::before {
 
 .app-header {
   text-align: center;
-  margin-bottom: 50px;
-  padding: 40px;
+  margin-bottom: 30px;
+  padding: 25px;
   background: rgba(106, 76, 147, 0.7);
   color: white;
   border-radius: 16px;
@@ -72,7 +123,7 @@ body::before {
 }
 
 .app-header h1 {
-  font-size: 3rem;
+  font-size: 1.5em;
   margin: 0;
 }
 
@@ -80,11 +131,11 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 10px;
 }
 
 .logo i {
-  font-size: 3em;
+  font-size: 1.5em;
   color: var(--cosmic-pink);
 }
 
@@ -92,11 +143,11 @@ body::before {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 25px;
 }
 
 .card {
-  padding: 40px;
+  padding: 25px;
   background: rgba(27, 18, 50, 0.7);
   border-radius: 16px;
   box-shadow: 
@@ -121,19 +172,18 @@ body::before {
 
 .zodiac-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
-  margin-top: 30px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 15px;
 }
 
 .zodiac-sign {
-  padding: 20px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: 8px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
   background: rgba(255, 255, 255, 0.05);
-  font-size: var(--font-size-medium);
 }
 
 .zodiac-sign:hover {
@@ -142,8 +192,8 @@ body::before {
 }
 
 .zodiac-sign i {
-  font-size: 2.5em;
-  margin-bottom: 10px;
+  font-size: 1.8em;
+  margin-bottom: 5px;
   color: var(--star-yellow);
 }
 
@@ -151,32 +201,31 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
 }
 
 .tabs {
   display: flex;
-  gap: 20px;
+  gap: 10px;
   width: 100%;
   justify-content: center;
 }
 
 .tab-btn {
-  padding: 20px 30px;
+  padding: 10px 15px;
   background: rgba(106, 76, 147, 0.3);
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--text-light);
   cursor: pointer;
   transition: all 0.3s;
   font-family: "Space Grotesk", sans-serif;
-  font-size: var(--font-size-medium);
 }
 
 .tab-btn.active {
   background: linear-gradient(45deg, var(--space-purple), var(--cosmic-pink));
   color: white;
-  box-shadow: 0 0 15px rgba(248, 187, 208, 0.5);
+  box-shadow: 0 0 10px rgba(248, 187, 208, 0.5);
 }
 
 .tab-btn:hover:not(.active) {
@@ -187,16 +236,16 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
+  gap: 15px;
   width: 100%;
 }
 
 .btn {
-  padding: 25px 40px;
+  padding: 14px 24px;
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  font-size: var(--font-size-medium);
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.5px;
   transition: all 0.4s;
@@ -204,9 +253,9 @@ body::before {
   overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
   width: 100%;
-  max-width: 500px;
+  max-width: 300px;
   justify-content: center;
 }
 
@@ -214,30 +263,30 @@ body::before {
   background: linear-gradient(45deg, var(--space-purple), var(--cosmic-pink));
   color: white;
   box-shadow: 
-    0 4px 20px rgba(106, 76, 147, 0.4),
-    0 0 15px rgba(248, 187, 208, 0.2);
+    0 4px 15px rgba(106, 76, 147, 0.4),
+    0 0 10px rgba(248, 187, 208, 0.2);
 }
 
 .primary-btn:hover {
   transform: translateY(-3px);
   box-shadow: 
-    0 8px 30px rgba(106, 76, 147, 0.5),
-    0 0 20px rgba(248, 187, 208, 0.3);
+    0 8px 25px rgba(106, 76, 147, 0.5),
+    0 0 15px rgba(248, 187, 208, 0.3);
 }
 
 .accent-btn {
   background: linear-gradient(45deg, var(--cosmic-pink), var(--space-purple));
   color: white;
   box-shadow: 
-    0 4px 20px rgba(248, 187, 208, 0.4),
-    0 0 15px rgba(106, 76, 147, 0.2);
+    0 4px 15px rgba(248, 187, 208, 0.4),
+    0 0 10px rgba(106, 76, 147, 0.2);
 }
 
 .accent-btn:hover {
   transform: translateY(-3px);
   box-shadow: 
-    0 8px 30px rgba(248, 187, 208, 0.5),
-    0 0 20px rgba(106, 76, 147, 0.3);
+    0 8px 25px rgba(248, 187, 208, 0.5),
+    0 0 15px rgba(106, 76, 147, 0.3);
 }
 
 .secondary-btn {
@@ -255,23 +304,22 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
 .result-meta {
   display: flex;
-  gap: 30px;
-  font-size: var(--font-size-small);
+  gap: 15px;
+  font-size: 0.9em;
   color: var(--text-dim);
 }
 
 .horoscope-content {
-  margin-top: 30px;
+  margin-top: 20px;
   line-height: 1.8;
   color: var(--text-light);
   position: relative;
-  padding-left: 30px;
-  font-size: var(--font-size-medium);
+  padding-left: 20px;
 }
 
 .horoscope-content::before {
@@ -280,50 +328,45 @@ body::before {
   left: 0;
   top: 0;
   height: 100%;
-  width: 5px;
+  width: 3px;
   background: linear-gradient(to bottom, var(--cosmic-pink), var(--space-purple));
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 .welcome-message {
   text-align: center;
-  padding: 30px 0;
+  padding: 20px 0;
 }
 
 .welcome-message img {
-  max-width: 200px;
-  margin-bottom: 30px;
-}
-
-.welcome-message h4 {
-  font-size: var(--font-size-large);
+  max-width: 150px;
+  margin-bottom: 15px;
 }
 
 .compatibility-selector {
   display: flex;
-  gap: 20px;
-  margin-top: 30px;
+  gap: 10px;
+  margin-top: 15px;
   flex-wrap: wrap;
 }
 
 .compatibility-selector select {
-  padding: 20px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(248, 187, 208, 0.3);
   background: rgba(27, 18, 50, 0.7);
   color: var(--text-light);
   font-family: "Space Grotesk", sans-serif;
   flex: 1;
-  min-width: 200px;
-  font-size: var(--font-size-medium);
+  min-width: 120px;
 }
 
 .app-footer {
   text-align: center;
-  padding: 40px;
-  margin-top: 50px;
+  padding: 20px;
+  margin-top: 30px;
   color: var(--text-dim);
-  font-size: var(--font-size-small);
+  font-size: 14px;
   position: relative;
 }
 
@@ -334,7 +377,7 @@ body::before {
   left: 50%;
   transform: translateX(-50%);
   width: 50%;
-  height: 2px;
+  height: 1px;
   background: linear-gradient(to right, transparent, rgba(248, 187, 208, 0.3), transparent);
 }
 
@@ -351,7 +394,7 @@ body::before {
 
 .floating-symbol {
   position: absolute;
-  font-size: 36px;
+  font-size: 24px;
   opacity: 0;
   animation: floatSymbol 15s linear infinite;
   color: var(--cosmic-pink);
@@ -365,57 +408,51 @@ body::before {
 }
 
 .compatibility-result {
-  margin-top: 40px;
+  margin-top: 20px;
   text-align: center;
 }
 
 .compatibility-score {
   background: rgba(106, 76, 147, 0.2);
-  padding: 40px;
+  padding: 20px;
   border-radius: 16px;
   border: 1px solid rgba(248, 187, 208, 0.2);
 }
 
 .score-circle {
-  width: 200px;
-  height: 200px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  margin: 0 auto 30px;
+  margin: 0 auto 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: conic-gradient(var(--cosmic-pink) calc(var(--score) * 1%), rgba(255, 255, 255, 0.1) 0);
-  box-shadow: 0 0 30px rgba(248, 187, 208, 0.3);
+  box-shadow: 0 0 20px rgba(248, 187, 208, 0.3);
 }
 
 .score-circle span {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 160px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: rgba(27, 18, 50, 0.8);
-  font-size: 36px;
+  font-size: 24px;
   font-weight: bold;
 }
 
 .compatibility-message {
-  margin-top: 20px;
-  font-size: var(--font-size-medium);
+  margin-top: 10px;
+  font-size: 16px;
   color: var(--cosmic-pink);
   font-weight: 500;
 }
 
-@media (max-width: 1200px) {
-  .zodiac-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 @media (max-width: 768px) {
   .app-container {
-    padding: 30px;
+    padding: 15px;
   }
 
   .zodiac-grid {
