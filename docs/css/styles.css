@@ -453,3 +453,9 @@ body::before {
   );
   box-shadow: 0 0 20px rgba(248, 187, 208, 0.3);
 }
+
+.zodiac-sign.selected {
+  background: rgba(248, 187, 208, 0.3);
+  box-shadow: 0 0 10px rgba(248, 187, 208, 0.5);
+  transform: translateY(-3px);
+}
