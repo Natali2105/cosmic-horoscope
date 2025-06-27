@@ -33,6 +33,18 @@
       ],
       "responses": {
         "default": "Совместимость {sign1} и {sign2}: {compatibility}%. {message}"
+      },
+      "slots": {
+        "sign1": {
+          "type": "ZODIAC_SIGN",
+          "required": true,
+          "questions": ["Первый знак зодиака для проверки совместимости?"]
+        },
+        "sign2": {
+          "type": "ZODIAC_SIGN",
+          "required": true,
+          "questions": ["Второй знак зодиака для проверки совместимости?"]
+        }
       }
     }
   },
