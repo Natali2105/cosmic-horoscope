@@ -102,10 +102,16 @@ const sberApp = createSberServer({
 //обработчик для получения гороскопа
 sberApp.intent('get_horoscope', ({ req, res }) => {
   try {
+    if (!req.slots.sign || !req.slots.sign.value) {
+      return res.status(400).json({
+        status: 'error',
+        message: "Не указан знак зодиака"
+      });
+    }
+
     const sign = req.slots.sign.value.toLowerCase();
     const period = req.slots.period?.value || 'daily';
     
-    //преобразуем русские названия периодов в английские
     const periodMap = {
       'сегодня': 'daily',
       'на день': 'daily',
@@ -121,9 +127,16 @@ sberApp.intent('get_horoscope', ({ req, res }) => {
     const englishPeriod = periodMap[period] || 'daily';
     
     if (!zodiacData[sign]) {
-      return res.json({
+      return res.status(404).json({
         status: 'error',
         message: "Извините, не могу найти гороскоп для этого знака"
+      });
+    }
+    
+    if (!zodiacData[sign][englishPeriod]) {
+      return res.status(404).json({
+        status: 'error',
+        message: "Извините, не могу найти гороскоп для указанного периода"
       });
     }
     
@@ -150,11 +163,18 @@ sberApp.intent('get_horoscope', ({ req, res }) => {
 //обработчик для проверки совместимости
 sberApp.intent('check_compatibility', ({ req, res }) => {
   try {
+    if (!req.slots.sign1 || !req.slots.sign1.value || !req.slots.sign2 || !req.slots.sign2.value) {
+      return res.status(400).json({
+        status: 'error',
+        message: "Не указаны оба знака зодиака"
+      });
+    }
+
     const sign1 = req.slots.sign1.value.toLowerCase();
     const sign2 = req.slots.sign2.value.toLowerCase();
     
     if (!zodiacData[sign1] || !zodiacData[sign2]) {
-      return res.json({
+      return res.status(404).json({
         status: 'error',
         message: "Извините, не могу найти один из знаков зодиака"
       });
@@ -191,32 +211,54 @@ sberApp.intent('check_compatibility', ({ req, res }) => {
 
 //запуск голосового сеанса
 app.post('/sber/start_voice', (req, res) => {
-  const sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  
-  res.json({
-    status: 'listening',
-    sessionId: sessionId
-  });
+  try {
+    const sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    
+    res.json({
+      status: 'listening',
+      sessionId: sessionId
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
+  }
 });
 
 //проверка статуса голосового сеанса
 app.get('/sber/check_response/:sessionId', (req, res) => {
-
-  setTimeout(() => {
-    res.json({
-      status: 'completed',
-      response: {
-        intent: 'get_horoscope',
-        slots: {
-          sign: 'aries',
-          period: 'daily'
+  try {
+    setTimeout(() => {
+      res.json({
+        status: 'completed',
+        response: {
+          intent: 'get_horoscope',
+          slots: {
+            sign: 'aries',
+            period: 'daily'
+          }
         }
-      }
+      });
+    }, 3000);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
     });
-  }, 3000);
+  }
 });
 
 app.use('/sber', sberApp.getRouter());
+
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'error',
+    message: 'Route not found'
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
